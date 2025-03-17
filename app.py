@@ -7,7 +7,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Conexión con MongoDB Atlas (reemplaza con tu URL real)
-client = MongoClient("mongodb+srv://iracheta602:Yahir2003@mixify.4va0z.mongodb.net/mixify?retryWrites=true&w=majority&appName=mixify")
+client = MongoClient("mongodb+srv://iracheta602:Mixify1234@mixify.4va0z.mongodb.net/mixify?retryWrites=true&w=majority&appName=mixify")
 db = client["mixify"]
 
 @app.route("/api/historial_bebidas", methods=["POST"])
