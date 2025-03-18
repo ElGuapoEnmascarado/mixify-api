@@ -1,31 +1,46 @@
 from flask import Flask, request, jsonify
-from pymongo import MongoClient
-from datetime import datetime
 from flask_cors import CORS
+import pymongo
+from bson import ObjectId
 
 app = Flask(__name__)
 CORS(app)
 
-# Conexión con MongoDB Atlas (reemplaza con tu URL real)
-client = MongoClient("mongodb+srv://iracheta602:Mixify1234@mixify.4va0z.mongodb.net/mixify?retryWrites=true&w=majority&appName=mixify")
-db = client["mixify"]
+# Conexión a MongoDB
+client = pymongo.MongoClient("mongodb+srv://iracheta602:Mixify1234@mixify.4va0z.mongodb.net/?retryWrites=true&w=majority&appName=mixify")
+db = client["mixifydb"]  # Aquí indicamos mixifydb
 
-@app.route("/api/historial_bebidas", methods=["POST"])
-def guardar_historial():
+# -------------------
+# GET estado_contenedores
+@app.route('/api/estado_contenedores', methods=['GET'])
+def get_estado():
+    data = list(db.estado_contenedores.find())
+    for doc in data:
+        doc['_id'] = str(doc['_id'])
+    return jsonify(data)
+
+# -------------------
+# POST historial_bebidas
+@app.route('/api/historial_bebidas', methods=['POST'])
+def post_historial():
     data = request.json
-    data["fecha"] = datetime.utcnow()
-    db["historial_bebidas"].insert_one(data)
-    return jsonify({"msg": "Datos guardados correctamente"})
+    db.historial_bebidas.insert_one(data)
+    return jsonify({"msg": "Historial guardado correctamente", "data": data}), 201
 
-@app.route("/api/historial_bebidas", methods=["GET"])
-def leer_historial():
-    bebidas = list(db["historial_bebidas"].find({}, {"_id": 0}))
-    return jsonify(bebidas)
+# -------------------
+# (Opcional) GET historial completo
+@app.route('/api/historial_bebidas', methods=['GET'])
+def get_historial():
+    data = list(db.historial_bebidas.find())
+    for doc in data:
+        doc['_id'] = str(doc['_id'])
+    return jsonify(data)
 
-@app.route("/api/estado_contenedores", methods=["GET"])
-def contenedores():
-    conts = list(db["estado_contenedores"].find({}, {"_id": 0}))
-    return jsonify(conts)
+# -------------------
+@app.route('/')
+def home():
+    return "API Mixify funcionando 🚀"
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+# -------------------
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
